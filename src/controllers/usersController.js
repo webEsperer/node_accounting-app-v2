@@ -5,10 +5,8 @@ function getUsers(req, res) {
 function createUser(req, res) {
   const { name } = req.body;
 
-  if (!name) {
-    res.sendStatus(400);
-
-    return;
+  if (!name || !name.trim()) {
+    return res.sendStatus(400);
   }
 
   const newUser = {
@@ -23,8 +21,13 @@ function createUser(req, res) {
 
 function getUserById(req, res) {
   const { id } = req.params;
+  const numericId = Number(id);
 
-  const user = req.app.locals.users.find((u) => u.id === Number(id));
+  if (isNaN(numericId)) {
+    return res.sendStatus(400);
+  }
+
+  const user = req.app.locals.users.find((u) => u.id === numericId);
 
   if (!user) {
     res.sendStatus(404);
@@ -38,7 +41,13 @@ function getUserById(req, res) {
 function deleteUser(req, res) {
   const { id } = req.params;
 
-  const userIndex = req.app.locals.users.findIndex((u) => u.id === Number(id));
+  const numericId = Number(id);
+
+  if (isNaN(numericId)) {
+    return res.sendStatus(400);
+  }
+
+  const userIndex = req.app.locals.users.findIndex((u) => u.id === numericId);
 
   if (userIndex === -1) {
     res.sendStatus(404);
@@ -53,23 +62,23 @@ function deleteUser(req, res) {
 function updateUser(req, res) {
   const { id } = req.params;
   const { name } = req.body;
+  const numericId = Number(id);
 
-  const user = req.app.locals.users.find((u) => u.id === Number(id));
+  if (isNaN(numericId)) {
+    return res.sendStatus(400);
+  }
+
+  if (!name || !name.trim()) {
+    return res.sendStatus(400);
+  }
+
+  const user = req.app.locals.users.find((u) => u.id === numericId);
 
   if (!user) {
-    res.sendStatus(404);
-
-    return;
+    return res.sendStatus(404);
   }
 
-  if (!name) {
-    res.sendStatus(400);
-
-    return;
-  }
-
-  user.name = name;
-
+  user.name = name.trim();
   res.send(user);
 }
 

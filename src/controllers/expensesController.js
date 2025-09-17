@@ -11,9 +11,7 @@ function getExpenses(req, res) {
       return;
     }
 
-    filteredExpenses = filteredExpenses.filter(
-      (e) => e.userId === Number(userId),
-    );
+    filteredExpenses = filteredExpenses.filter((e) => e.userId === id);
   }
 
   if (categories) {
@@ -28,28 +26,28 @@ function getExpenses(req, res) {
   if (from) {
     const fromDate = new Date(from);
 
-    if (isNaN(fromDate)) {
-      res.sendStatus(400);
-
-      return;
+    if (!Number.isFinite(fromDate.getTime())) {
+      return res.sendStatus(400);
     }
 
+    const fromTimestamp = fromDate.getTime();
+
     filteredExpenses = filteredExpenses.filter(
-      (e) => new Date(e.spentAt) >= fromDate,
+      (e) => new Date(e.spentAt).getTime() >= fromTimestamp,
     );
   }
 
   if (to) {
     const toDate = new Date(to);
 
-    if (isNaN(toDate)) {
-      res.sendStatus(400);
-
-      return;
+    if (!Number.isFinite(toDate.getTime())) {
+      return res.sendStatus(400);
     }
 
+    const toTimestamp = toDate.getTime();
+
     filteredExpenses = filteredExpenses.filter(
-      (e) => new Date(e.spentAt) <= toDate,
+      (e) => new Date(e.spentAt).getTime() <= toTimestamp,
     );
   }
 
@@ -71,18 +69,17 @@ function createExpenses(req, res) {
     return;
   }
 
-  const userExists = req.app.locals.users.some((e) => e.id === Number(userId));
+  const numericUserId = Number(userId);
+  const numericAmount = Number(amount);
 
-  if (!userExists) {
-    res.sendStatus(400);
-
-    return;
+  if (isNaN(numericUserId) || isNaN(numericAmount)) {
+    return res.sendStatus(400);
   }
 
-  if (isNaN(Number(userId)) || isNaN(Number(amount))) {
-    res.sendStatus(400);
+  const userExists = req.app.locals.users.some((u) => u.id === numericUserId);
 
-    return;
+  if (!userExists) {
+    return res.sendStatus(400);
   }
 
   const date = new Date(spentAt);
@@ -154,12 +151,9 @@ function updateExpenses(req, res) {
   if (spentAt !== undefined) {
     const date = new Date(spentAt);
 
-    if (isNaN(date)) {
-      res.sendStatus(400);
-
-      return;
+    if (!Number.isFinite(date.getTime())) {
+      return res.sendStatus(400);
     }
-
     expense.spentAt = date.toISOString();
   }
 
