@@ -1,7 +1,5 @@
-const users = [];
-
 function getUsers(req, res) {
-  res.send(users);
+  res.send(req.app.locals.users);
 }
 
 function createUser(req, res) {
@@ -14,11 +12,11 @@ function createUser(req, res) {
   }
 
   const newUser = {
-    id: users.length + 1,
+    id: req.app.locals.nextUserId++,
     name,
   };
 
-  users.push(newUser);
+  req.app.locals.users.push(newUser);
 
   res.status(201).send(newUser);
 }
@@ -26,7 +24,7 @@ function createUser(req, res) {
 function getUserById(req, res) {
   const { id } = req.params;
 
-  const user = users.find((u) => u.id === Number(id));
+  const user = req.app.locals.users.find((u) => u.id === Number(id));
 
   if (!user) {
     res.sendStatus(404);
@@ -40,7 +38,7 @@ function getUserById(req, res) {
 function deleteUser(req, res) {
   const { id } = req.params;
 
-  const userIndex = users.findIndex((u) => u.id === Number(id));
+  const userIndex = req.app.locals.users.findIndex((u) => u.id === Number(id));
 
   if (userIndex === -1) {
     res.sendStatus(404);
@@ -48,7 +46,7 @@ function deleteUser(req, res) {
     return;
   }
 
-  users.splice(userIndex, 1);
+  req.app.locals.users.splice(userIndex, 1);
   res.sendStatus(204);
 }
 
@@ -56,7 +54,7 @@ function updateUser(req, res) {
   const { id } = req.params;
   const { name } = req.body;
 
-  const user = users.find((u) => u.id === Number(id));
+  const user = req.app.locals.users.find((u) => u.id === Number(id));
 
   if (!user) {
     res.sendStatus(404);
@@ -76,7 +74,6 @@ function updateUser(req, res) {
 }
 
 module.exports = {
-  users,
   getUsers,
   getUserById,
   createUser,

@@ -1,10 +1,6 @@
-const { users } = require('./usersController.js');
-
-const expenses = [];
-
 function getExpenses(req, res) {
   const { userId, categories, from, to } = req.query;
-  let filteredExpenses = [...expenses];
+  let filteredExpenses = [...req.app.locals.expenses];
 
   if (userId) {
     const id = Number(userId);
@@ -75,7 +71,7 @@ function createExpenses(req, res) {
     return;
   }
 
-  const userExists = users.some((e) => e.id === Number(userId));
+  const userExists = req.app.locals.users.some((e) => e.id === Number(userId));
 
   if (!userExists) {
     res.sendStatus(400);
@@ -98,7 +94,7 @@ function createExpenses(req, res) {
   }
 
   const newExpense = {
-    id: expenses.length + 1,
+    id: req.app.locals.nextExpenseId++,
     userId: Number(userId),
     spentAt: date.toISOString(),
     title,
@@ -107,7 +103,7 @@ function createExpenses(req, res) {
     note: note || '',
   };
 
-  expenses.push(newExpense);
+  req.app.locals.expenses.push(newExpense);
 
   res.status(201).send(newExpense);
 }
@@ -115,7 +111,7 @@ function createExpenses(req, res) {
 function getExpensesById(req, res) {
   const { id } = req.params;
 
-  const expense = expenses.find((e) => e.id === Number(id));
+  const expense = req.app.locals.expenses.find((e) => e.id === Number(id));
 
   if (!expense) {
     res.sendStatus(404);
@@ -129,7 +125,9 @@ function getExpensesById(req, res) {
 function deleteExpenses(req, res) {
   const { id } = req.params;
 
-  const expenseIndex = expenses.findIndex((e) => e.id === Number(id));
+  const expenseIndex = req.app.locals.expenses.findIndex(
+    (e) => e.id === Number(id),
+  );
 
   if (expenseIndex === -1) {
     res.sendStatus(404);
@@ -137,7 +135,7 @@ function deleteExpenses(req, res) {
     return;
   }
 
-  expenses.splice(expenseIndex, 1);
+  req.app.locals.expenses.splice(expenseIndex, 1);
   res.sendStatus(204);
 }
 
@@ -145,7 +143,7 @@ function updateExpenses(req, res) {
   const { id } = req.params;
   const { spentAt, title, amount, category, note } = req.body;
 
-  const expense = expenses.find((e) => e.id === Number(id));
+  const expense = req.app.locals.expenses.find((e) => e.id === Number(id));
 
   if (!expense) {
     res.sendStatus(404);
@@ -195,5 +193,4 @@ module.exports = {
   getExpensesById,
   deleteExpenses,
   updateExpenses,
-  expenses,
 };
