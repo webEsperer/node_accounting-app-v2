@@ -1,9 +1,6 @@
-const { expenses } = require('../data/expenses.js');
-const { users } = require('../data/users.js');
+const { users } = require('./usersController.js');
 
-beforeEach(() => {
-  expenses.length = 0;
-});
+const expenses = [];
 
 function getExpenses(req, res) {
   const { userId, categories, from, to } = req.query;
@@ -198,4 +195,5 @@ module.exports = {
   getExpensesById,
   deleteExpenses,
   updateExpenses,
+  expenses,
 };

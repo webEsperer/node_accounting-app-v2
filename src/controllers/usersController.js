@@ -1,8 +1,4 @@
-const { users } = require('../data/users.js');
-
-beforeEach(() => {
-  users.length = 0; // czyści tablicę przed każdym testem
-});
+const users = [];
 
 function getUsers(req, res) {
   res.send(users);
@@ -80,6 +76,7 @@ function updateUser(req, res) {
 }
 
 module.exports = {
+  users,
   getUsers,
   getUserById,
   createUser,
